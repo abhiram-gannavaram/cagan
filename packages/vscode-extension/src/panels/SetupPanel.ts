@@ -33,7 +33,7 @@ interface ProviderInfo {
 }
 
 const ALL_PROVIDERS: ProviderInfo[] = [
-  { kind: 'minimax', name: 'MiniMax', envVar: 'MINIMAX_API_KEY', defaultModel: 'MiniMax-M2.7', models: ['MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'abab6.5s-chat'], baseUrl: 'https://api.minimax.chat/v1', apiKey: '' },
+  { kind: 'minimax', name: 'MiniMax', envVar: 'MINIMAX_API_KEY', defaultModel: 'MiniMax-M2.7', models: ['MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'abab6.5s-chat'], baseUrl: 'https://api.minimax.io/v1', apiKey: '' },
   { kind: 'anthropic', name: 'Anthropic (Claude)', envVar: 'ANTHROPIC_API_KEY', defaultModel: 'claude-sonnet-4-6', models: ['claude-opus-4-6', 'claude-sonnet-4-6', 'claude-haiku-4-5-20251001', 'claude-3-5-sonnet-20241022'], baseUrl: 'https://api.anthropic.com', apiKey: '' },
   { kind: 'openai', name: 'OpenAI', envVar: 'OPENAI_API_KEY', defaultModel: 'gpt-4o', models: ['gpt-4o', 'gpt-4o-mini', 'o3', 'o3-mini', 'o1'], baseUrl: 'https://api.openai.com/v1', apiKey: '' },
   { kind: 'gemini', name: 'Google Gemini', envVar: 'GEMINI_API_KEY', defaultModel: 'gemini-2.0-flash', models: ['gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-2.0-pro', 'gemini-1.5-pro'], baseUrl: 'https://generativelanguage.googleapis.com', apiKey: '' },
@@ -152,7 +152,7 @@ export class SetupPanel {
       deepseek: 'https://api.deepseek.com/v1',
       mistral: 'https://api.mistral.ai/v1',
       groq: 'https://api.groq.com/openai/v1',
-      minimax: 'https://api.minimax.chat/v1',
+      minimax: 'https://api.minimax.io/v1',
       custom: customBaseUrl ?? ''
     };
 
@@ -385,7 +385,7 @@ function getWebviewHtml(_initialState: string): string {
 
     <div id="field-custom-url" class="field hidden">
       <label for="inp-base-url">Base URL (OpenAI-compatible endpoint)</label>
-      <input type="text" id="inp-base-url" placeholder="https://api.minimax.chat/v1" autocomplete="off">
+      <input type="text" id="inp-base-url" placeholder="https://api.minimax.io/v1" autocomplete="off">
       <div class="hint">The /v1 endpoint of your provider.</div>
     </div>
 

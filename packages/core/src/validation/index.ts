@@ -12,7 +12,7 @@ const OPENAI_COMPAT_BASES: Partial<Record<ProviderKind, string>> = {
   deepseek: 'https://api.deepseek.com/v1',
   mistral: 'https://api.mistral.ai/v1',
   groq: 'https://api.groq.com/openai/v1',
-  minimax: 'https://api.minimax.chat/v1'
+  minimax: 'https://api.minimax.io/v1'
 };
 
 const DEFAULT_TEST_MODELS: Partial<Record<ProviderKind, string>> = {

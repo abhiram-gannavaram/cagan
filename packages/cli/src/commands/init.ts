@@ -19,7 +19,7 @@ const PROVIDER_CHOICES: Array<{
     name: 'MiniMax    (MiniMax-M2.7 / M2.7-highspeed)',
     value: 'minimax',
     envVar: 'MINIMAX_API_KEY',
-    baseUrl: 'https://api.minimax.chat/v1',
+    baseUrl: 'https://api.minimax.io/v1',
     defaultModel: 'MiniMax-M2.7',
     models: ['MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'abab6.5s-chat']
   },
@@ -75,7 +75,7 @@ const PROVIDER_CHOICES: Array<{
     name: 'MiniMax    (MiniMax-M2.7 / M2.7-highspeed)',
     value: 'minimax',
     envVar: 'MINIMAX_API_KEY',
-    baseUrl: 'https://api.minimax.chat/v1',
+    baseUrl: 'https://api.minimax.io/v1',
     defaultModel: 'MiniMax-M2.7',
     models: ['MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'abab6.5s-chat']
   },
@@ -283,7 +283,7 @@ export async function initCommand(projectPath?: string): Promise<void> {
           type: 'input',
           name: 'baseUrl',
           message: chalk.white('Base URL (OpenAI-compatible endpoint):'),
-          default: 'https://api.minimax.chat/v1',
+          default: 'https://api.minimax.io/v1',
           validate: (v: string) => v.startsWith('http') ? true : 'Must be a valid URL starting with http'
         }
       ]);
