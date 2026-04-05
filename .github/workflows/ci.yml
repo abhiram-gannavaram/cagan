@@ -107,5 +107,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build workspace packages (required for type resolution in dependent packages)
+        run: pnpm -r build
+
       - name: Run lint (all packages)
         run: pnpm -r lint
