@@ -3,7 +3,8 @@ import { OpenAICompatibleProvider, type OpenAICompatibleConfig } from './openai-
 import { AnthropicCompatibleProvider, type AnthropicCompatibleConfig } from './anthropic-compatible.js';
 import { GeminiProvider, type GeminiConfig } from './gemini.js';
 
-export type { LLMProvider, ProviderConfig, OpenAICompatibleConfig, AnthropicCompatibleConfig, GeminiConfig, Message, TokenUsage, ChatOptions, ChatCompletion, ChatDelta, Model, ToolDefinition, ToolCall };
+export type * from './types.js';
+export type { OpenAICompatibleConfig, AnthropicCompatibleConfig, GeminiConfig };
 
 export function createProvider(name: string, config: ProviderConfig): LLMProvider {
   const baseConfig = {
