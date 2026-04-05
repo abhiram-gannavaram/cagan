@@ -95,7 +95,7 @@ export class AnthropicCompatibleProvider implements LLMProvider {
 
   async healthCheck(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl}/messages`, {
+      const response = await fetch(`${this.baseUrl}/messages`, { // NETWORK: health check ping to user's configured Anthropic-compatible endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ export class AnthropicCompatibleProvider implements LLMProvider {
 
     body.stream = stream;
 
-    const response = await fetch(`${this.baseUrl}/messages`, {
+    const response = await fetch(`${this.baseUrl}/messages`, { // NETWORK: sends chat messages to user's configured Anthropic-compatible endpoint
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
