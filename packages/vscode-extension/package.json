@@ -1,0 +1,95 @@
+{
+  "name": "@byoadev/vscode-extension",
+  "version": "0.1.0",
+  "displayName": "BYOA Dev",
+  "description": "Universal Open-Source AI Coding Agent",
+  "publisher": "byoadev",
+  "type": "module",
+  "main": "./dist/extension.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src",
+    "clean": "rm -rf dist"
+  },
+  "activationEvents": [
+    "onCommand:byoa.dev.init",
+    "onCommand:byoa.dev.agent.run",
+    "onCommand:byoa.dev.chat.focus",
+    "onView:byoa-dev-sidebar"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "byoa.dev.init",
+        "title": "BYOA Dev: Initialize Project"
+      },
+      {
+        "command": "byoa.dev.agent.run",
+        "title": "BYOA Dev: Run Agent"
+      },
+      {
+        "command": "byoa.dev.agent.stop",
+        "title": "BYOA Dev: Stop Agent"
+      },
+      {
+        "command": "byoa.dev.agent.switchMode",
+        "title": "BYOA Dev: Switch Mode"
+      },
+      {
+        "command": "byoa.dev.chat.focus",
+        "title": "BYOA Dev: Focus Chat"
+      },
+      {
+        "command": "byoa.dev.memory.view",
+        "title": "BYOA Dev: View Memory"
+      },
+      {
+        "command": "byoa.dev.config.edit",
+        "title": "BYOA Dev: Edit Config"
+      },
+      {
+        "command": "byoa.dev.cost.show",
+        "title": "BYOA Dev: Show Cost"
+      }
+    ],
+    "views": [
+      {
+        "id": "byoa-dev-sidebar",
+        "name": "BYOA Dev",
+        "type": "webview"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "byoa-dev-activitybar",
+          "title": "BYOA Dev",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "byoa.dev.agent.run",
+          "when": "workspaceFolderExists"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "@byoadev/core": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/webview-ui-toolkit": "^1.4.0",
+    "typescript": "^5.4.0",
+    "@vscode/test-electron": "^2.4.0"
+  }
+}

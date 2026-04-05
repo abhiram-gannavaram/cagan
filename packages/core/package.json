@@ -1,0 +1,34 @@
+{
+  "name": "@byoadev/core",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./providers": "./dist/providers/index.js",
+    "./agents": "./dist/agents/index.js",
+    "./memory": "./dist/memory/index.js",
+    "./tools": "./dist/tools/index.js",
+    "./diff": "./dist/diff/index.js",
+    "./cost": "./dist/cost/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src",
+    "test": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "yaml": "^2.4.0",
+    "diff": "^5.2.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/diff": "^5.2.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.4.0"
+  }
+}
