@@ -107,7 +107,10 @@ function buildYamlConfig(provider: {
     gemini: 'https://generativelanguage.googleapis.com',
     deepseek: 'https://api.deepseek.com/v1',
     mistral: 'https://api.mistral.ai/v1',
-    groq: 'https://api.groq.com/openai/v1'
+    groq: 'https://api.groq.com/openai/v1',
+    minimax: 'https://api.minimax.io/v1',
+    'azure-openai': '',
+    custom: ''
   };
 
   return `version: "1.0"
