@@ -54,8 +54,7 @@ export async function validateApiKey(
 }
 
 async function testAnthropic(key: string, model: string, start: number): Promise<ValidationResult> {
-  // NETWORK: POST api.anthropic.com/v1/messages — 1-token probe to validate key. Sends no user data.
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch('https://api.anthropic.com/v1/messages', { // NETWORK: POST api.anthropic.com/v1/messages — 1-token probe to validate key. Sends no user data.
     method: 'POST',
     headers: {
       'x-api-key': key,
@@ -72,8 +71,7 @@ async function testAnthropic(key: string, model: string, start: number): Promise
 }
 
 async function testOpenAICompat(base: string, key: string, model: string, start: number): Promise<ValidationResult> {
-  // NETWORK: POST {base}/chat/completions — 1-token probe to validate key. Sends no user data.
-  const res = await fetch(`${base}/chat/completions`, {
+  const res = await fetch(`${base}/chat/completions`, { // NETWORK: POST {base}/chat/completions — 1-token probe to validate key. Sends no user data.
     method: 'POST',
     headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -86,8 +84,7 @@ async function testOpenAICompat(base: string, key: string, model: string, start:
 }
 
 async function testGemini(key: string, model: string, start: number): Promise<ValidationResult> {
-  // NETWORK: POST generativelanguage.googleapis.com — 1-token probe to validate key. Sends no user data.
-  const res = await fetch(
+  const res = await fetch( // NETWORK: POST generativelanguage.googleapis.com — 1-token probe to validate key. Sends no user data.
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
     {
       method: 'POST',
