@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { spawn, type ChildProcess } from 'child_process';
 
 export interface MCPServerDefinition {
@@ -118,12 +118,18 @@ export class Marketplace {
     this.serverStatuses.set(id, status);
 
     try {
-      const installCommand = `${server.command} ${server.args.join(' ')}`;
-      execSync(installCommand, {
+      // Use spawnSync with shell:false — each arg is a separate element,
+      // preventing shell metacharacter injection from server.args values.
+      const result = spawnSync(server.command, server.args, {
         cwd: cwd || process.cwd(),
         stdio: 'pipe',
-        timeout: 120000
+        timeout: 120_000,
+        shell: false
       });
+      if (result.error) throw result.error;
+      if (result.status !== 0) {
+        throw new Error(result.stderr?.toString() || `Process exited with code ${result.status}`);
+      }
 
       status.status = 'stopped';
       status.installedAt = Date.now();

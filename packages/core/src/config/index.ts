@@ -137,10 +137,16 @@ export class ConfigManager {
   resolveApiKey(providerName: string): string {
     const provider = this.config.providers[providerName];
     if (!provider) return '';
-    
+
     const apiKey = provider.apiKey;
     if (apiKey.startsWith('${') && apiKey.endsWith('}')) {
       const envVar = apiKey.slice(2, -1);
+      // Only allow safe env-var names: uppercase letters, digits, underscores.
+      // This prevents arbitrary env-var enumeration via config injection.
+      if (!/^[A-Z_][A-Z0-9_]{0,99}$/.test(envVar)) {
+        console.warn(`[cagan] Skipping unsafe env-var reference: "${envVar}"`);
+        return '';
+      }
       return process.env[envVar] || '';
     }
     return apiKey;

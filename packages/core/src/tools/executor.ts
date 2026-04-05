@@ -1,9 +1,37 @@
-import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'fs';
-import { join, resolve } from 'path';
-import { execSync } from 'child_process';
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync, chmodSync } from 'fs';
+import { join, resolve, relative } from 'path';
+import { execSync, spawnSync } from 'child_process';
 import { BUILTIN_TOOLS, validateToolInput, type ToolResult, type ToolContext } from './definitions.js';
 import type { ToolCall } from '../providers/types.js';
 import { CodeIndexer } from '../indexer/index.js';
+
+/** Maximum file size we will read into memory (10 MiB). */
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+
+/** Hard timeout (ms) for every terminal command. */
+const TERMINAL_TIMEOUT_MS = 60_000;
+
+/**
+ * Assert that `filePath` is inside `root`, throwing if it is not.
+ * Prevents path-traversal attacks (../../etc/passwd etc.).
+ */
+function assertWithinRoot(filePath: string, root: string): void {
+  const rel = relative(root, filePath);
+  if (rel.startsWith('..') || require('path').isAbsolute(rel)) {
+    throw new Error(`Access denied: path "${filePath}" is outside workspace root`);
+  }
+}
+
+/**
+ * Validate and resolve an env-var name for API key lookups.
+ * Only allows uppercase letters, digits, and underscores — no shell-injection risk.
+ */
+function safeEnvVarName(name: string): string {
+  if (!/^[A-Z_][A-Z0-9_]{0,99}$/.test(name)) {
+    throw new Error(`Invalid environment variable name: "${name}"`);
+  }
+  return name;
+}
 
 export class ToolExecutor {
   private context: ToolContext;
@@ -62,8 +90,8 @@ export class ToolExecutor {
     return [...BUILTIN_TOOLS, ...customToolDefs];
   }
 
-  private shouldIgnore(path: string): boolean {
-    const normalized = path.replace(/\\/g, '/');
+  private shouldIgnore(filePath: string): boolean {
+    const normalized = filePath.replace(/\\/g, '/');
     for (const pattern of this.ignorePatterns) {
       if (normalized.includes(pattern)) return true;
     }
@@ -104,11 +132,18 @@ export class ToolExecutor {
   private readFile(input: { path: string; offset?: number; limit?: number }): ToolResult {
     try {
       const absolutePath = resolve(this.context.cwd, input.path);
+      assertWithinRoot(absolutePath, this.context.workspaceRoot || this.context.cwd);
       if (this.shouldIgnore(absolutePath)) {
         return { success: false, error: `File ignored by .caganignore: ${absolutePath}` };
       }
       if (!existsSync(absolutePath)) {
         return { success: false, error: `File not found: ${absolutePath}` };
+      }
+
+      // Enforce size limit before reading into memory
+      const size = statSync(absolutePath).size;
+      if (size > MAX_FILE_BYTES) {
+        return { success: false, error: `File too large (${(size / 1024 / 1024).toFixed(1)} MiB). Use offset/limit to read in chunks.` };
       }
 
       let content = readFileSync(absolutePath, 'utf-8');
@@ -129,10 +164,11 @@ export class ToolExecutor {
   private writeFile(input: { path: string; content: string; createBackup?: boolean }): ToolResult {
     try {
       const absolutePath = resolve(this.context.cwd, input.path);
+      assertWithinRoot(absolutePath, this.context.workspaceRoot || this.context.cwd);
       if (this.shouldIgnore(absolutePath)) {
         return { success: false, error: `File ignored by .caganignore: ${absolutePath}` };
       }
-      
+
       if (input.createBackup && existsSync(absolutePath)) {
         const backupPath = `${absolutePath}.backup`;
         writeFileSync(backupPath, readFileSync(absolutePath), 'utf-8');
@@ -140,7 +176,6 @@ export class ToolExecutor {
 
       const dir = join(absolutePath, '..');
       if (!existsSync(dir)) {
-        const { mkdirSync } = require('fs');
         mkdirSync(dir, { recursive: true });
       }
 
@@ -154,6 +189,7 @@ export class ToolExecutor {
   private editFile(input: { path: string; oldString: string; newString: string }): ToolResult {
     try {
       const absolutePath = resolve(this.context.cwd, input.path);
+      assertWithinRoot(absolutePath, this.context.workspaceRoot || this.context.cwd);
       if (this.shouldIgnore(absolutePath)) {
         return { success: false, error: `File ignored by .caganignore: ${absolutePath}` };
       }
@@ -176,17 +212,35 @@ export class ToolExecutor {
 
   private glob(input: { pattern: string; cwd?: string }): ToolResult {
     try {
-      const searchPath = input.cwd || this.context.cwd;
-      const escapedPattern = input.pattern.replace(/\*/g, '.*').replace(/\?/g, '.');
-      const cmd = `find "${searchPath}" -type f -name "*.ts" 2>/dev/null | head -100`;
-      const output = execSync(cmd, { encoding: 'utf-8', maxBuffer: 1024 * 1024 });
-      const files = output.split('\n').filter(line => {
-        if (!line.trim()) return false;
-        if (this.shouldIgnore(line)) return false;
-        const filename = line.split('/').pop() || '';
-        return new RegExp(escapedPattern.replace(/\.ts$/, '\\.ts$')).test(filename);
-      });
-      return { success: true, output: files.join('\n') };
+      const searchPath = resolve(this.context.cwd, input.cwd || '.');
+      assertWithinRoot(searchPath, this.context.workspaceRoot || this.context.cwd);
+
+      // Pure Node.js recursive file walk — no shell involvement
+      const results: string[] = [];
+      const patternRegex = new RegExp(
+        '^' + input.pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.') + '$'
+      );
+
+      const walk = (dir: string, depth: number): void => {
+        if (depth > 20) return; // guard against deep symlink cycles
+        let entries: string[];
+        try { entries = readdirSync(dir); } catch { return; }
+        for (const entry of entries) {
+          const full = join(dir, entry);
+          if (this.shouldIgnore(full)) continue;
+          try {
+            const st = statSync(full);
+            if (st.isDirectory()) {
+              walk(full, depth + 1);
+            } else if (patternRegex.test(entry) || patternRegex.test(full)) {
+              if (results.length < 500) results.push(full);
+            }
+          } catch { /* skip unreadable */ }
+        }
+      };
+
+      walk(searchPath, 0);
+      return { success: true, output: results.join('\n') };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Glob failed' };
     }
@@ -194,34 +248,55 @@ export class ToolExecutor {
 
   private grep(input: { pattern: string; path?: string; include?: string; caseSensitive?: boolean }): ToolResult {
     try {
-      const searchPath = input.path || this.context.cwd;
+      const searchPath = resolve(this.context.cwd, input.path || '.');
+      assertWithinRoot(searchPath, this.context.workspaceRoot || this.context.cwd);
       if (this.shouldIgnore(searchPath)) {
         return { success: false, error: `Path ignored by .caganignore: ${searchPath}` };
       }
-      const flags = input.caseSensitive ? '' : 'i';
-      const includeFlag = input.include ? `--include=${input.include}` : '';
-      
-      const cmd = `grep -rn${flags} "${input.pattern.replace(/"/g, '\\"')}" ${searchPath} ${includeFlag}`.trim();
-      const output = execSync(cmd, { encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 });
-      
-      const lines = output.split('\n').filter(line => !this.shouldIgnore(line.split(':')[0] || ''));
+
+      // Use spawnSync with array argv — no shell expansion, safe against injection
+      const args: string[] = ['-rn'];
+      if (!input.caseSensitive) args.push('-i');
+      if (input.include) args.push(`--include=${input.include}`);
+      args.push('--', input.pattern, searchPath);
+
+      const result = spawnSync('grep', args, {
+        encoding: 'utf-8',
+        maxBuffer: 10 * 1024 * 1024,
+        timeout: 10_000,
+        shell: false
+      });
+
+      if (result.error) throw result.error;
+      if (result.status === 1) return { success: true, output: '' }; // no matches
+      if (result.status !== 0) {
+        return { success: false, error: result.stderr || 'grep failed' };
+      }
+
+      const lines = (result.stdout || '').split('\n')
+        .filter(line => !this.shouldIgnore(line.split(':')[0] || ''));
       return { success: true, output: lines.join('\n') };
     } catch (error) {
-      if (error instanceof Error && 'status' in error && (error as { status: number }).status === 1) {
-        return { success: true, output: '' };
-      }
       return { success: false, error: error instanceof Error ? error.message : 'Grep failed' };
     }
   }
 
   private terminal(input: { command: string; cwd?: string; timeout?: number }): ToolResult {
     try {
-      const cwd = input.cwd || this.context.cwd;
-      const output = execSync(input.command, { 
-        encoding: 'utf-8', 
-        cwd, 
+      // Validate and bound the working directory
+      const cwd = input.cwd
+        ? resolve(this.context.cwd, input.cwd)
+        : this.context.cwd;
+      assertWithinRoot(cwd, this.context.workspaceRoot || this.context.cwd);
+
+      // Cap timeout at 60 seconds; always enforce a hard ceiling
+      const timeout = Math.min(input.timeout ?? TERMINAL_TIMEOUT_MS, TERMINAL_TIMEOUT_MS);
+
+      const output = execSync(input.command, {
+        encoding: 'utf-8',
+        cwd,
         maxBuffer: 10 * 1024 * 1024,
-        timeout: input.timeout
+        timeout
       });
       return { success: true, output };
     } catch (error) {
@@ -235,6 +310,7 @@ export class ToolExecutor {
   private readDirectory(input: { path: string }): ToolResult {
     try {
       const absolutePath = resolve(this.context.cwd, input.path);
+      assertWithinRoot(absolutePath, this.context.workspaceRoot || this.context.cwd);
       if (this.shouldIgnore(absolutePath)) {
         return { success: false, error: `Directory ignored by .caganignore: ${absolutePath}` };
       }
@@ -257,9 +333,13 @@ export class ToolExecutor {
 
   private gitStatus(input: { cwd?: string }): ToolResult {
     try {
-      const cwd = input.cwd || this.context.cwd;
-      const output = execSync('git status --porcelain', { encoding: 'utf-8', cwd, maxBuffer: 1024 * 1024 });
-      return { success: true, output: output || 'No changes' };
+      const cwd = input.cwd ? resolve(this.context.cwd, input.cwd) : this.context.cwd;
+      assertWithinRoot(cwd, this.context.workspaceRoot || this.context.cwd);
+      const result = spawnSync('git', ['status', '--porcelain'], {
+        encoding: 'utf-8', cwd, maxBuffer: 1024 * 1024, timeout: 10_000, shell: false
+      });
+      if (result.error) throw result.error;
+      return { success: true, output: result.stdout || 'No changes' };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Git status failed' };
     }
@@ -267,16 +347,23 @@ export class ToolExecutor {
 
   private gitCommit(input: { message: string; cwd?: string; addAll?: boolean }): ToolResult {
     try {
-      const cwd = input.cwd || this.context.cwd;
+      const cwd = input.cwd ? resolve(this.context.cwd, input.cwd) : this.context.cwd;
+      assertWithinRoot(cwd, this.context.workspaceRoot || this.context.cwd);
+
       if (input.addAll) {
-        execSync('git add -A', { encoding: 'utf-8', cwd });
+        const addResult = spawnSync('git', ['add', '-A'], {
+          encoding: 'utf-8', cwd, timeout: 10_000, shell: false
+        });
+        if (addResult.error) throw addResult.error;
       }
-      const output = execSync(`git commit -m "${input.message.replace(/"/g, '\\"')}"`, { 
-        encoding: 'utf-8', 
-        cwd,
-        maxBuffer: 1024 * 1024
+
+      // Pass message as a separate argv element — no shell escaping needed
+      const result = spawnSync('git', ['commit', '-m', input.message], {
+        encoding: 'utf-8', cwd, maxBuffer: 1024 * 1024, timeout: 30_000, shell: false
       });
-      return { success: true, output: output || 'Committed successfully' };
+      if (result.error) throw result.error;
+      if (result.status !== 0) return { success: false, error: result.stderr || 'Commit failed' };
+      return { success: true, output: result.stdout || 'Committed successfully' };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Git commit failed' };
     }
@@ -284,10 +371,14 @@ export class ToolExecutor {
 
   private gitLog(input: { cwd?: string; maxCount?: number }): ToolResult {
     try {
-      const cwd = input.cwd || this.context.cwd;
-      const count = input.maxCount || 10;
-      const output = execSync(`git log --oneline -n ${count}`, { encoding: 'utf-8', cwd, maxBuffer: 1024 * 1024 });
-      return { success: true, output: output || 'No commits' };
+      const cwd = input.cwd ? resolve(this.context.cwd, input.cwd) : this.context.cwd;
+      assertWithinRoot(cwd, this.context.workspaceRoot || this.context.cwd);
+      const count = String(Math.min(input.maxCount ?? 10, 100)); // cap at 100
+      const result = spawnSync('git', ['log', '--oneline', `-n`, count], {
+        encoding: 'utf-8', cwd, maxBuffer: 1024 * 1024, timeout: 10_000, shell: false
+      });
+      if (result.error) throw result.error;
+      return { success: true, output: result.stdout || 'No commits' };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Git log failed' };
     }
@@ -295,10 +386,21 @@ export class ToolExecutor {
 
   private gitDiff(input: { cwd?: string; file?: string }): ToolResult {
     try {
-      const cwd = input.cwd || this.context.cwd;
-      const fileFlag = input.file ? ` -- ${input.file}` : '';
-      const output = execSync(`git diff${fileFlag}`, { encoding: 'utf-8', cwd, maxBuffer: 1024 * 1024 });
-      return { success: true, output: output || 'No changes' };
+      const cwd = input.cwd ? resolve(this.context.cwd, input.cwd) : this.context.cwd;
+      assertWithinRoot(cwd, this.context.workspaceRoot || this.context.cwd);
+
+      const args = ['diff'];
+      if (input.file) {
+        const filePath = resolve(cwd, input.file);
+        assertWithinRoot(filePath, this.context.workspaceRoot || this.context.cwd);
+        args.push('--', filePath);
+      }
+
+      const result = spawnSync('git', args, {
+        encoding: 'utf-8', cwd, maxBuffer: 1024 * 1024, timeout: 10_000, shell: false
+      });
+      if (result.error) throw result.error;
+      return { success: true, output: result.stdout || 'No changes' };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Git diff failed' };
     }
@@ -315,8 +417,6 @@ export class ToolExecutor {
           const patterns = ignoreContent.split('\n').filter(line => line.trim() && !line.startsWith('#'));
           this.indexer.setIgnorePatterns(patterns);
         }
-        const { execSync: syncExec } = require('child_process');
-        syncExec(`find "${cwd}" -type f \\( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \\) 2>/dev/null | head -1000`, { encoding: 'utf-8' });
         this.indexer.indexDirectory(cwd);
       }
 
@@ -327,3 +427,5 @@ export class ToolExecutor {
     }
   }
 }
+
+export { safeEnvVarName };
