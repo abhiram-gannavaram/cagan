@@ -92,7 +92,7 @@ export class GeminiProvider implements LLMProvider {
 
   async healthCheck(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl}/v1beta/models?key=${this.apiKey}`);
+      const response = await fetch(`${this.baseUrl}/v1beta/models?key=${this.apiKey}`); // NETWORK: health check to Google Gemini API using user's API key
       return response.ok;
     } catch {
       return false;
@@ -119,7 +119,7 @@ export class GeminiProvider implements LLMProvider {
 
     const url = `${this.baseUrl}/v1beta/models/${model}:generateContent?key=${this.apiKey}`;
 
-    const response = await fetch(url, {
+    const response = await fetch(url, { // NETWORK: sends chat messages to Google Gemini API using user's API key
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)

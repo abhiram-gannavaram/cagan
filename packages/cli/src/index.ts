@@ -9,6 +9,8 @@ import { memoryCommand } from './commands/memory.js';
 import { configCommand } from './commands/config.js';
 import { costCommand } from './commands/cost.js';
 import { indexCommand } from './commands/index.js';
+import { turboCommand } from './commands/turbo.js';
+import { swarmCommand } from './commands/swarm.js';
 
 const program = new Command();
 
@@ -69,5 +71,28 @@ program
   .description('Manage codebase index')
   .option('--rebuild', 'Rebuild index from scratch')
   .action(indexCommand);
+
+program
+  .command('turbo')
+  .description('TurboQuant token efficiency controls')
+  .option('--stats', 'Show session token savings and cache stats')
+  .option('--cache <subcommand>', 'Cache operations (e.g. "stats")')
+  .option('--budget', 'Set session budget (use with --usd)')
+  .option('--usd <amount>', 'Budget amount in USD (e.g. 5.0)')
+  .option('--report', 'Full analytics report')
+  .action(turboCommand);
+
+program
+  .command('swarm')
+  .description('Run parallel agent swarm on a task')
+  .argument('<task>', 'High-level task to decompose and execute')
+  .option('--dry-run', 'Show swarm plan without executing')
+  .option('--max-agents <n>', 'Maximum parallel agents (default: 5)')
+  .option('--conflicts <strategy>', 'Conflict resolution: ask | merge | latest-wins | abort', 'merge')
+  .option('--budget <tokens>', 'Total token budget for the swarm')
+  .option('--continue-on-failure', 'Continue running if some agents fail')
+  .option('--provider <name>', 'Override provider')
+  .option('--model <model>', 'Override model')
+  .action(swarmCommand);
 
 program.parse();

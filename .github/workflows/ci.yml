@@ -10,7 +10,7 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,16 +29,65 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build all packages
+      - name: Build all packages (core, cli, marketplace, turbo, swarm, vscode-extension)
         run: pnpm -r build
 
-      - name: Run tests
-        run: pnpm -r --filter @cagan/core test
+      - name: Run all tests
+        run: pnpm -r test
+
+  security-audit:
+    name: Security Audit — No Telemetry
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for telemetry libraries
+        # cagan must NEVER include telemetry. This check fails the build if any are found.
+        run: |
+          echo "Scanning for telemetry references..."
+          if grep -r "segment\|mixpanel\|amplitude\|analytics\.track\|telemetry\.send\|Sentry\.init\|datadog" \
+               packages/ --include="*.ts" --exclude-dir="__tests__" --exclude-dir="node_modules"; then
+            echo "ERROR: Telemetry reference found in source code. cagan must never collect user data."
+            exit 1
+          fi
+          echo "PASS: No telemetry references found."
+
+      - name: Check all network calls are documented
+        # Every outbound HTTP call must have a // NETWORK: comment explaining what it sends and to where.
+        run: |
+          echo "Scanning for undocumented network calls..."
+          UNDOCUMENTED=$(grep -rn "await fetch\|axios\.\(get\|post\|put\)" \
+            packages/ --include="*.ts" \
+            --exclude-dir="__tests__" \
+            --exclude-dir="node_modules" | \
+            grep -v "// NETWORK:" | \
+            grep -v "test\|spec\|mock" || true)
+          if [ -n "$UNDOCUMENTED" ]; then
+            echo "ERROR: Undocumented network call(s) found:"
+            echo "$UNDOCUMENTED"
+            echo "All network calls must have a // NETWORK: comment."
+            exit 1
+          fi
+          echo "PASS: All network calls are documented."
+
+      - name: Check for hardcoded secrets patterns
+        run: |
+          echo "Scanning for hardcoded secret patterns..."
+          if grep -rn "sk-[a-zA-Z0-9]\{20,\}\|anthropic-\|HARDCODED_KEY" \
+               packages/ --include="*.ts" \
+               --exclude-dir="__tests__" \
+               --exclude-dir="node_modules"; then
+            echo "ERROR: Potential hardcoded secret found."
+            exit 1
+          fi
+          echo "PASS: No hardcoded secrets detected."
 
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,5 +106,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run lint
+      - name: Run lint (all packages)
         run: pnpm -r lint

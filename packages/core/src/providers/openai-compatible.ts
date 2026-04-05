@@ -85,7 +85,7 @@ export class OpenAICompatibleProvider implements LLMProvider {
 
   async getModels(): Promise<Model[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/models`, {
+      const response = await fetch(`${this.baseUrl}/models`, { // NETWORK: lists models at user's configured provider endpoint
         headers: { Authorization: `Bearer ${this.apiKey}` }
       });
       const data = await response.json() as { data?: Record<string, unknown>[] };
@@ -104,7 +104,7 @@ export class OpenAICompatibleProvider implements LLMProvider {
 
   async healthCheck(): Promise<boolean> {
     try {
-      await fetch(`${this.baseUrl}/models`, {
+      await fetch(`${this.baseUrl}/models`, { // NETWORK: health check ping to user's configured provider endpoint
         headers: { Authorization: `Bearer ${this.apiKey}` }
       });
       return true;
@@ -114,7 +114,7 @@ export class OpenAICompatibleProvider implements LLMProvider {
   }
 
   private async makeRequest(messages: Message[], stream: boolean, options?: ChatOptions): Promise<ChatCompletion | Response> {
-    const response = await fetch(`${this.baseUrl}/chat/completions`, {
+    const response = await fetch(`${this.baseUrl}/chat/completions`, { // NETWORK: sends chat messages to user's configured provider endpoint
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
