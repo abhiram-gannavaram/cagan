@@ -13,9 +13,16 @@ import { homedir } from 'os';
 import { initCommand } from './commands/init.js';
 import { AgentPanel } from './panels/AgentPanel.js';
 import { SetupPanel } from './panels/SetupPanel.js';
+import { SidebarProvider } from './providers/SidebarProvider.js';
 
 export function activate(context: vscode.ExtensionContext) {
   const agentPanel = new AgentPanel(context);
+
+  // ── Sidebar webview provider ───────────────────────────────────────────
+  const sidebarProvider = new SidebarProvider(context);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(SidebarProvider.viewId, sidebarProvider)
+  );
 
   // ── First-time setup: show wizard if no config exists ──────────────────
   const hasGlobalConfig  = existsSync(join(homedir(), '.cagan', 'config.yaml'));
