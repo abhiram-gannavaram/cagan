@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { parse } from 'yaml';
-import { getConfigManager } from '@byoadev/core';
-import { createProvider } from '@byoadev/core';
+import { getConfigManager } from '@cagan/core';
+import { createProvider } from '@cagan/core';
 export async function configCommand(options) {
     const cwd = process.cwd();
     const configManager = getConfigManager(cwd);
@@ -11,7 +11,7 @@ export async function configCommand(options) {
         const providers = Object.entries(config.providers);
         if (providers.length === 0) {
             console.log(chalk.yellow('No providers configured'));
-            console.log(chalk.gray('Add a provider to .byoadev/config.yaml'));
+            console.log(chalk.gray('Add a provider to .cagan/config.yaml'));
             return;
         }
         console.log(chalk.cyan('Configured Providers:\n'));
@@ -40,7 +40,7 @@ export async function configCommand(options) {
                 process.exit(1);
             }
             console.log(chalk.green(`Provider config loaded from ${options.addProvider}`));
-            console.log(chalk.yellow('Note: You need to manually merge the config into .byoadev/config.yaml'));
+            console.log(chalk.yellow('Note: You need to manually merge the config into .cagan/config.yaml'));
             return;
         }
         catch (error) {

@@ -1,9 +1,9 @@
 {
-  "name": "@byoadev/vscode-extension",
+  "name": "@cagan/vscode-extension",
   "version": "0.1.0",
-  "displayName": "BYOA Dev",
+  "displayName": "cagan",
   "description": "Universal Open-Source AI Coding Agent",
-  "publisher": "byoadev",
+  "publisher": "cagan",
   "type": "module",
   "main": "./dist/extension.js",
   "scripts": {
@@ -13,58 +13,58 @@
     "clean": "rm -rf dist"
   },
   "activationEvents": [
-    "onCommand:byoa.dev.init",
-    "onCommand:byoa.dev.agent.run",
-    "onCommand:byoa.dev.chat.focus",
-    "onView:byoa-dev-sidebar"
+    "onCommand:cagan.init",
+    "onCommand:cagan.agent.run",
+    "onCommand:cagan.chat.focus",
+    "onView:cagan-sidebar"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "byoa.dev.init",
-        "title": "BYOA Dev: Initialize Project"
+        "command": "cagan.init",
+        "title": "cagan: Initialize Project"
       },
       {
-        "command": "byoa.dev.agent.run",
-        "title": "BYOA Dev: Run Agent"
+        "command": "cagan.agent.run",
+        "title": "cagan: Run Agent"
       },
       {
-        "command": "byoa.dev.agent.stop",
-        "title": "BYOA Dev: Stop Agent"
+        "command": "cagan.agent.stop",
+        "title": "cagan: Stop Agent"
       },
       {
-        "command": "byoa.dev.agent.switchMode",
-        "title": "BYOA Dev: Switch Mode"
+        "command": "cagan.agent.switchMode",
+        "title": "cagan: Switch Mode"
       },
       {
-        "command": "byoa.dev.chat.focus",
-        "title": "BYOA Dev: Focus Chat"
+        "command": "cagan.chat.focus",
+        "title": "cagan: Focus Chat"
       },
       {
-        "command": "byoa.dev.memory.view",
-        "title": "BYOA Dev: View Memory"
+        "command": "cagan.memory.view",
+        "title": "cagan: View Memory"
       },
       {
-        "command": "byoa.dev.config.edit",
-        "title": "BYOA Dev: Edit Config"
+        "command": "cagan.config.edit",
+        "title": "cagan: Edit Config"
       },
       {
-        "command": "byoa.dev.cost.show",
-        "title": "BYOA Dev: Show Cost"
+        "command": "cagan.cost.show",
+        "title": "cagan: Show Cost"
       }
     ],
     "views": [
       {
-        "id": "byoa-dev-sidebar",
-        "name": "BYOA Dev",
+        "id": "cagan-sidebar",
+        "name": "cagan",
         "type": "webview"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "byoa-dev-activitybar",
-          "title": "BYOA Dev",
+          "id": "cagan-activitybar",
+          "title": "cagan",
           "icon": "media/icon.svg"
         }
       ]
@@ -72,14 +72,14 @@
     "menus": {
       "commandPalette": [
         {
-          "command": "byoa.dev.agent.run",
+          "command": "cagan.agent.run",
           "when": "workspaceFolderExists"
         }
       ]
     }
   },
   "dependencies": {
-    "@byoadev/core": "workspace:*",
+    "@cagan/core": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

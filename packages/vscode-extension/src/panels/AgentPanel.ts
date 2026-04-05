@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
-import { BYOACore } from '@byoadev/core';
-import { getCostTracker } from '@byoadev/core';
+import { CaganCore } from '@cagan/core';
+import { getCostTracker } from '@cagan/core';
 
 export class AgentPanel {
   private panel: vscode.WebviewPanel | null = null;
   private context: vscode.ExtensionContext;
-  private core: BYOACore;
-  private agent: ReturnType<BYOACore['createAgent']> | null = null;
+  private core: CaganCore;
+  private agent: ReturnType<CaganCore['createAgent']> | null = null;
   private messages: { role: string; content: string }[] = [];
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
-    this.core = new BYOACore();
+    this.core = new CaganCore();
   }
 
   show(): void {
@@ -21,8 +21,8 @@ export class AgentPanel {
     }
 
     this.panel = vscode.window.createWebviewPanel(
-      'byoa-dev-agent',
-      'BYOA Dev',
+      'cagan-agent',
+      'cagan',
       vscode.ViewColumn.One,
       { enableScripts: true }
     );
@@ -117,7 +117,7 @@ export class AgentPanel {
       </head>
       <body>
         <div class="header">
-          <span class="title">BYOA Dev</span>
+          <span class="title">cagan</span>
           <span class="cost">$${summary.totalCostUsd.toFixed(6)} | ${summary.totalTokens} tokens</span>
         </div>
         <div class="messages">

@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { join } from 'path';
 export async function indexCommand(options) {
     const cwd = process.cwd();
-    const indexDir = join(cwd, '.byoadev', 'index');
+    const indexDir = join(cwd, '.cagan', 'index');
     if (options.rebuild) {
         console.log(chalk.cyan('Rebuilding codebase index...\n'));
         try {
@@ -24,7 +24,7 @@ export async function indexCommand(options) {
     console.log(chalk.cyan('Codebase Index\n'));
     try {
         console.log(chalk.gray('Indexing is not yet implemented in MVP'));
-        console.log(chalk.gray('Run "byoadev index --rebuild" to rebuild the index'));
+        console.log(chalk.gray('Run "cagan index --rebuild" to rebuild the index'));
         console.log(chalk.gray('(Feature will be available in Phase 2)'));
     }
     catch (error) {

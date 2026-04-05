@@ -14,7 +14,7 @@ import { getConfigManager } from './config/index.js';
 import { getMemoryManager } from './memory/index.js';
 import { getCostTracker } from './cost/index.js';
 
-export class BYOACore {
+export class CaganCore {
   async initialize(projectPath?: string): Promise<void> {
     const config = getConfigManager(projectPath);
     const memory = getMemoryManager(projectPath);
@@ -58,4 +58,4 @@ export class BYOACore {
   }
 }
 
-export const core = new BYOACore();
+export const core = new CaganCore();

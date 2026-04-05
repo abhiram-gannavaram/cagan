@@ -1,6 +1,6 @@
 import chalk from 'chalk';
-import { BYOACore } from '@byoadev/core';
-import { getConfigManager } from '@byoadev/core';
+import { CaganCore } from '@cagan/core';
+import { getConfigManager } from '@cagan/core';
 
 interface ChatOptions {
   provider?: string;
@@ -8,7 +8,7 @@ interface ChatOptions {
 
 export async function chatCommand(message: string, options: ChatOptions): Promise<void> {
   const cwd = process.cwd();
-  const core = new BYOACore();
+  const core = new CaganCore();
   
   try {
     await core.initialize(cwd);

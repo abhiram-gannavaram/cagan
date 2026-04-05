@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
-import { BYOACore } from '@byoadev/core';
+import { CaganCore } from '@cagan/core';
 
 export class AutocompleteProvider implements vscode.InlineCompletionItemProvider {
-  private core: BYOACore;
+  private core: CaganCore;
   private lastTriggerTime = 0;
   private debounceMs = 300;
   private cachedCompletion: string | null = null;
 
-  constructor(core: BYOACore) {
+  constructor(core: CaganCore) {
     this.core = core;
   }
 

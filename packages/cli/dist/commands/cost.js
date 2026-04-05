@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { getCostTracker } from '@byoadev/core';
+import { getCostTracker } from '@cagan/core';
 export async function costCommand() {
     const tracker = getCostTracker();
     const summary = tracker.getSummary();

@@ -20,7 +20,7 @@ export interface AppConfig {
   };
   security: {
     api_key_storage: string;
-    byoaignore_path: string;
+    caganignore_path: string;
   };
 }
 
@@ -40,7 +40,7 @@ const DEFAULT_CONFIG: AppConfig = {
   },
   security: {
     api_key_storage: 'keychain',
-    byoaignore_path: '~/.byoadev/byoaignore'
+    caganignore_path: '~/.cagan/caganignore'
   }
 };
 
@@ -50,8 +50,8 @@ export class ConfigManager {
 
   constructor(projectPath?: string) {
     const configDir = projectPath 
-      ? join(projectPath, '.byoadev')
-      : join(homedir(), '.byoadev');
+      ? join(projectPath, '.cagan')
+      : join(homedir(), '.cagan');
     this.configPath = join(configDir, 'config.yaml');
     this.config = this.loadConfig();
   }

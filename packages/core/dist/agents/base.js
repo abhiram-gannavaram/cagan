@@ -26,7 +26,7 @@ export class BaseAgent {
         });
         this.memory = new MemoryManager(config.workspaceRoot);
         this.costTracker = new CostTracker();
-        this.diffApplier = new DiffApplier(join(config.workspaceRoot, '.byoadev', 'backups'));
+        this.diffApplier = new DiffApplier(join(config.workspaceRoot, '.cagan', 'backups'));
         if (config.systemPrompt) {
             this.messages.push({ role: 'system', content: config.systemPrompt });
         }

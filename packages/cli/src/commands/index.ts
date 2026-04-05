@@ -7,7 +7,7 @@ interface IndexOptions {
 
 export async function indexCommand(options: IndexOptions): Promise<void> {
   const cwd = process.cwd();
-  const indexDir = join(cwd, '.byoadev', 'index');
+  const indexDir = join(cwd, '.cagan', 'index');
 
   if (options.rebuild) {
     console.log(chalk.cyan('Rebuilding codebase index...\n'));
@@ -35,7 +35,7 @@ export async function indexCommand(options: IndexOptions): Promise<void> {
 
   try {
     console.log(chalk.gray('Indexing is not yet implemented in MVP'));
-    console.log(chalk.gray('Run "byoadev index --rebuild" to rebuild the index'));
+    console.log(chalk.gray('Run "cagan index --rebuild" to rebuild the index'));
     console.log(chalk.gray('(Feature will be available in Phase 2)'));
   } catch (error) {
     console.log(chalk.red(`Failed to read index: ${error instanceof Error ? error.message : 'Unknown error'}`));

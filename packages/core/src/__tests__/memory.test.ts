@@ -8,7 +8,7 @@ describe('MemoryManager', () => {
   let testDir: string;
 
   beforeEach(() => {
-    testDir = join('/tmp', `byoadev-memory-test-${Date.now()}`);
+    testDir = join('/tmp', `cagan-memory-test-${Date.now()}`);
     memory = new MemoryManager(testDir);
   });
 

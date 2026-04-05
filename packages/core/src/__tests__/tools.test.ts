@@ -9,7 +9,7 @@ describe('ToolExecutor', () => {
   let testDir: string;
 
   beforeEach(() => {
-    testDir = join(tmpdir(), `byoadev-test-${Date.now()}`);
+    testDir = join(tmpdir(), `cagan-test-${Date.now()}`);
     mkdirSync(testDir, { recursive: true });
     executor = new ToolExecutor({ cwd: testDir, workspaceRoot: testDir });
   });
@@ -40,7 +40,7 @@ describe('ToolExecutor', () => {
       expect(result.error).toContain('not found');
     });
 
-    it('should respect .byoaignore patterns', async () => {
+    it('should respect .caganignore patterns', async () => {
       const ignoredFile = join(testDir, 'secrets.json');
       writeFileSync(ignoredFile, '{"key": "secret"}', 'utf-8');
 
@@ -84,12 +84,12 @@ describe('ToolExecutor', () => {
         function: { name: 'edit_file', arguments: JSON.stringify({ 
           path: testFile, 
           oldString: 'World', 
-          newString: 'BYOA Dev' 
+          newString: 'cagan' 
         }) }
       });
 
       expect(result.success).toBe(true);
-      expect(readFileSync(testFile, 'utf-8')).toBe('Hello BYOA Dev');
+      expect(readFileSync(testFile, 'utf-8')).toBe('Hello cagan');
     });
 
     it('should fail if oldString not found', async () => {

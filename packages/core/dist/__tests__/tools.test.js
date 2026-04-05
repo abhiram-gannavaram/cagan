@@ -7,7 +7,7 @@ describe('ToolExecutor', () => {
     let executor;
     let testDir;
     beforeEach(() => {
-        testDir = join(tmpdir(), `byoadev-test-${Date.now()}`);
+        testDir = join(tmpdir(), `cagan-test-${Date.now()}`);
         mkdirSync(testDir, { recursive: true });
         executor = new ToolExecutor({ cwd: testDir, workspaceRoot: testDir });
     });
@@ -68,11 +68,11 @@ describe('ToolExecutor', () => {
                 function: { name: 'edit_file', arguments: JSON.stringify({
                         path: testFile,
                         oldString: 'World',
-                        newString: 'BYOA Dev'
+                        newString: 'cagan'
                     }) }
             });
             expect(result.success).toBe(true);
-            expect(readFileSync(testFile, 'utf-8')).toBe('Hello BYOA Dev');
+            expect(readFileSync(testFile, 'utf-8')).toBe('Hello cagan');
         });
         it('should fail if oldString not found', async () => {
             const testFile = join(testDir, 'edit-test2.txt');

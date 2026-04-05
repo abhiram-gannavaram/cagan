@@ -7,7 +7,7 @@ export * from './cost/index.js';
 export * from './streaming/index.js';
 export * from './mcp/index.js';
 export * from './config/index.js';
-export declare class BYOACore {
+export declare class CaganCore {
     initialize(projectPath?: string): Promise<void>;
     createAgent(config: {
         mode: 'code' | 'architect' | 'debug' | 'review' | 'ask';
@@ -17,5 +17,5 @@ export declare class BYOACore {
         workspaceRoot: string;
     }): import("./index.js").BaseAgent;
 }
-export declare const core: BYOACore;
+export declare const core: CaganCore;
 //# sourceMappingURL=index.d.ts.map

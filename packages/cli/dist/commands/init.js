@@ -3,13 +3,13 @@ import { join } from 'path';
 import chalk from 'chalk';
 export async function initCommand(projectPath) {
     const cwd = projectPath || process.cwd();
-    const byoaDir = join(cwd, '.byoadev');
-    if (existsSync(byoaDir)) {
-        console.log(chalk.yellow('BYOA Dev already initialized in this directory'));
+    const caganDir = join(cwd, '.cagan');
+    if (existsSync(caganDir)) {
+        console.log(chalk.yellow('cagan already initialized in this directory'));
         return;
     }
-    mkdirSync(byoaDir, { recursive: true });
-    mkdirSync(join(byoaDir, 'backups'), { recursive: true });
+    mkdirSync(caganDir, { recursive: true });
+    mkdirSync(join(caganDir, 'backups'), { recursive: true });
     const configTemplate = `version: "1.0"
 providers: {}
 defaults:
@@ -24,10 +24,10 @@ defaults:
   budget_alert_usd: 5.0
 security:
   api_key_storage: keychain
-  .byoaignore_path: ~/.byoadev/byoaignore
+  caganignore_path: ~/.cagan/caganignore
 `;
-    writeFileSync(join(byoaDir, 'config.yaml'), configTemplate, 'utf-8');
-    const byoaignoreTemplate = `.git/
+    writeFileSync(join(caganDir, 'config.yaml'), configTemplate, 'utf-8');
+    const caganignoreTemplate = `.git/
 node_modules/
 dist/
 build/
@@ -40,12 +40,12 @@ secrets/
 .vscode/
 .idea/
 `;
-    writeFileSync(join(cwd, '.byoaignore'), byoaignoreTemplate, 'utf-8');
-    console.log(chalk.green('BYOA Dev initialized successfully!'));
+    writeFileSync(join(cwd, '.caganignore'), caganignoreTemplate, 'utf-8');
+    console.log(chalk.green('cagan initialized successfully!'));
     console.log(chalk.cyan('Created:'));
-    console.log(`  ${join(byoaDir, 'config.yaml')}`);
-    console.log(`  ${join(byoaDir, 'backups/')}`);
-    console.log(`  ${join(cwd, '.byoaignore')}`);
-    console.log(chalk.yellow('\nPlease configure your provider in .byoadev/config.yaml'));
+    console.log(`  ${join(caganDir, 'config.yaml')}`);
+    console.log(`  ${join(caganDir, 'backups/')}`);
+    console.log(`  ${join(cwd, '.caganignore')}`);
+    console.log(chalk.yellow('\nPlease configure your provider in .cagan/config.yaml'));
 }
 //# sourceMappingURL=init.js.map

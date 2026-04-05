@@ -21,7 +21,7 @@ export class ProjectMemory {
   private sqliteDb: unknown = null;
 
   constructor(projectPath: string) {
-    this.dbPath = join(projectPath, '.byoadev', 'memory.json');
+    this.dbPath = join(projectPath, '.cagan', 'memory.json');
     this.data = { entries: [], nextId: 1 };
     this.load();
   }

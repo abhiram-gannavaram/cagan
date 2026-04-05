@@ -1,13 +1,13 @@
-# BYOA Dev - Universal Open-Source AI Coding Agent
+# cagan - Code with any LLM
 
-**BYOK (Bring Your Own API) Developer** - A free, open-source coding assistant that works with ANY LLM provider. No subscription, no token limits, no agent limits.
+**Universal AI Coding Agent** - A free, open-source coding assistant that works with ANY LLM provider. No subscription, no token limits, no agent limits.
 
-[![CI](https://github.com/byoadev/byoadev/actions/workflows/ci.yml/badge.svg)](https://github.com/byoadev/byoadev/actions)
-[![npm version](https://img.shields.io/npm/v/@byoadev/cli.svg)](https://www.npmjs.com/package/@byoadev/cli)
+[![CI](https://github.com/abhiram-gannavaram/cagan/actions/workflows/ci.yml/badge.svg)](https://github.com/abhiram-gannavaram/cagan/actions)
+[![npm version](https://img.shields.io/npm/v/@cagan/cli.svg)](https://www.npmjs.com/package/@cagan/cli)
 
 ---
 
-## Why BYOA Dev?
+## Why cagan?
 
 **15 Problems Fixed That Cline/Roo Code Have:**
 
@@ -68,7 +68,7 @@
 
 ### 🔒 Security
 - API keys stored in OS keychain (keytar)
-- `.byoaignore` file support
+- `.caganignore` file support
 - No telemetry - all data stays local
 
 ### 📦 MCP Integration
@@ -83,19 +83,19 @@
 ### Install
 
 ```bash
-npm install -g @byoadev/cli
+npm install -g @cagan/cli
 ```
 
 ### Initialize a Project
 
 ```bash
 cd your-project
-byoadev init
+cagan init
 ```
 
 ### Configure Your Provider
 
-Edit `.byoadev/config.yaml`:
+Edit `.cagan/config.yaml`:
 
 ```yaml
 providers:
@@ -117,7 +117,7 @@ defaults:
 ### Run an Agent
 
 ```bash
-byoadev agent --mode code "add user authentication to the login page"
+cagan agent --mode code "add user authentication to the login page"
 ```
 
 ---
@@ -126,14 +126,14 @@ byoadev agent --mode code "add user authentication to the login page"
 
 | Command | Description |
 |---------|-------------|
-| `byoadev init [path]` | Initialize project |
-| `byoadev agent --mode <mode> "task"` | Run agent |
-| `byoadev chat "message"` | Interactive chat |
-| `byoadev agents` | List running agents |
-| `byoadev memory --scope <scope> --list` | View memories |
-| `byoadev config --list-providers` | List providers |
-| `byoadev cost` | Show cost breakdown |
-| `byoadev index --rebuild` | Rebuild index |
+| `cagan init [path]` | Initialize project |
+| `cagan agent --mode <mode> "task"` | Run agent |
+| `cagan chat "message"` | Interactive chat |
+| `cagan agents` | List running agents |
+| `cagan memory --scope <scope> --list` | View memories |
+| `cagan config --list-providers` | List providers |
+| `cagan cost` | Show cost breakdown |
+| `cagan index --rebuild` | Rebuild index |
 
 ---
 
@@ -182,8 +182,8 @@ Features:
 
 ```bash
 # Clone
-git clone https://github.com/byoadev/byoadev.git
-cd byoadev
+git clone https://github.com/abhiram-gannavaram/cagan.git
+cd cagan
 
 # Install
 pnpm install
@@ -202,8 +202,8 @@ cd packages/cli && pnpm link --global
 
 ## Comparison
 
-| Feature | BYOA Dev | Cline | Roo Code |
-|---------|----------|-------|----------|
+| Feature | cagan | Cline | Roo Code |
+|---------|-------|-------|----------|
 | Provider agnostic | ✅ | ❌ | ❌ |
 | Parallel agents | ✅ | ❌ | ❌ |
 | 9 agent modes | ✅ | ❌ | ❌ |

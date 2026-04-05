@@ -15,7 +15,7 @@ export interface AppConfig {
     };
     security: {
         api_key_storage: string;
-        byoaignore_path: string;
+        caganignore_path: string;
     };
 }
 export declare class ConfigManager {

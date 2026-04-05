@@ -3,7 +3,7 @@ import { join } from 'path';
 import { formatDiff, applyPatch } from './compute.js';
 export class DiffApplier {
     backupDir;
-    constructor(backupDir = '.byoadev/backups') {
+    constructor(backupDir = '.cagan/backups') {
         this.backupDir = backupDir;
     }
     applyFile(filePath, newContent, createBackup = true) {

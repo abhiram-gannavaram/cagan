@@ -10,12 +10,12 @@ import { costCommand } from './commands/cost.js';
 import { indexCommand } from './commands/index.js';
 const program = new Command();
 program
-    .name('byoadev')
-    .description('BYOA Dev - Universal AI Coding Agent')
+    .name('cagan')
+    .description('cagan - Code with any LLM')
     .version('0.1.0');
 program
     .command('init [project-path]')
-    .description('Initialize BYOA Dev in current directory')
+    .description('Initialize cagan in current directory')
     .action(initCommand);
 program
     .command('agent')

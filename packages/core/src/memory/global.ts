@@ -19,7 +19,7 @@ export class GlobalMemory {
   private data: JsonDatabase;
 
   constructor() {
-    const dbDir = join(homedir(), '.byoadev');
+    const dbDir = join(homedir(), '.cagan');
     if (!existsSync(dbDir)) {
       mkdirSync(dbDir, { recursive: true });
     }

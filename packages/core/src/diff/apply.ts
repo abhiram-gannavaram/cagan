@@ -12,7 +12,7 @@ export interface ApplyResult {
 export class DiffApplier {
   private backupDir: string;
 
-  constructor(backupDir: string = '.byoadev/backups') {
+  constructor(backupDir: string = '.cagan/backups') {
     this.backupDir = backupDir;
   }
 

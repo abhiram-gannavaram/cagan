@@ -1,9 +1,9 @@
 import chalk from 'chalk';
-import { BYOACore } from '@byoadev/core';
-import { getConfigManager } from '@byoadev/core';
+import { CaganCore } from '@cagan/core';
+import { getConfigManager } from '@cagan/core';
 export async function chatCommand(message, options) {
     const cwd = process.cwd();
-    const core = new BYOACore();
+    const core = new CaganCore();
     try {
         await core.initialize(cwd);
     }

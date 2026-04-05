@@ -1,13 +1,13 @@
-# Contributing to BYOA Dev
+# Contributing to cagan
 
-Thank you for your interest in contributing to BYOA Dev!
+Thank you for your interest in contributing to cagan!
 
 ## Development Setup
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/byoadev/byoadev.git
-cd byoadev
+git clone https://github.com/abhiram-gannavaram/cagan.git
+cd cagan
 ```
 
 2. Install dependencies:

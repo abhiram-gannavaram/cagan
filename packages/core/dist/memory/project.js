@@ -6,7 +6,7 @@ export class ProjectMemory {
     useSqlite = false;
     sqliteDb = null;
     constructor(projectPath) {
-        this.dbPath = join(projectPath, '.byoadev', 'memory.json');
+        this.dbPath = join(projectPath, '.cagan', 'memory.json');
         this.data = { entries: [], nextId: 1 };
         this.load();
     }

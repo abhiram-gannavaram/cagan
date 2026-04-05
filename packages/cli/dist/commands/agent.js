@@ -1,10 +1,10 @@
 import chalk from 'chalk';
-import { BYOACore } from '@byoadev/core';
-import { getConfigManager } from '@byoadev/core';
-import { DeltaAccumulator } from '@byoadev/core';
+import { CaganCore } from '@cagan/core';
+import { getConfigManager } from '@cagan/core';
+import { DeltaAccumulator } from '@cagan/core';
 export async function agentCommand(task, options) {
     const cwd = process.cwd();
-    const core = new BYOACore();
+    const core = new CaganCore();
     try {
         await core.initialize(cwd);
     }
@@ -15,7 +15,7 @@ export async function agentCommand(task, options) {
     const providerName = options.provider || configManager.getDefaultProvider();
     const model = options.model || configManager.getDefaultModel(options.mode);
     if (!providerName) {
-        console.log(chalk.red('No default provider configured. Run "byoadev init" and configure a provider.'));
+        console.log(chalk.red('No default provider configured. Run "cagan init" and configure a provider.'));
         process.exit(1);
     }
     const providerConfig = configManager.getProvider(providerName);

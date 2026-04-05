@@ -1,12 +1,12 @@
 import { mkdirSync, existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
 export async function initCommand(projectPath) {
-    const byoaDir = join(projectPath, '.byoadev');
-    if (existsSync(byoaDir)) {
+    const caganDir = join(projectPath, '.cagan');
+    if (existsSync(caganDir)) {
         return;
     }
-    mkdirSync(byoaDir, { recursive: true });
-    mkdirSync(join(byoaDir, 'backups'), { recursive: true });
+    mkdirSync(caganDir, { recursive: true });
+    mkdirSync(join(caganDir, 'backups'), { recursive: true });
     const configTemplate = `version: "1.0"
 providers: {}
 defaults:
@@ -21,10 +21,10 @@ defaults:
   budget_alert_usd: 5.0
 security:
   api_key_storage: keychain
-  .byoaignore_path: ~/.byoadev/byoaignore
+  caganignore_path: ~/.cagan/caganignore
 `;
-    writeFileSync(join(byoaDir, 'config.yaml'), configTemplate, 'utf-8');
-    const byoaignoreTemplate = `.git/
+    writeFileSync(join(caganDir, 'config.yaml'), configTemplate, 'utf-8');
+    const caganignoreTemplate = `.git/
 node_modules/
 dist/
 build/
@@ -37,6 +37,6 @@ secrets/
 .vscode/
 .idea/
 `;
-    writeFileSync(join(projectPath, '.byoaignore'), byoaignoreTemplate, 'utf-8');
+    writeFileSync(join(projectPath, '.caganignore'), caganignoreTemplate, 'utf-8');
 }
 //# sourceMappingURL=init.js.map

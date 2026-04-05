@@ -5,7 +5,7 @@ export class GlobalMemory {
     dbPath;
     data;
     constructor() {
-        const dbDir = join(homedir(), '.byoadev');
+        const dbDir = join(homedir(), '.cagan');
         if (!existsSync(dbDir)) {
             mkdirSync(dbDir, { recursive: true });
         }

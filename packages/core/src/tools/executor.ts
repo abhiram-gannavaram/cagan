@@ -105,7 +105,7 @@ export class ToolExecutor {
     try {
       const absolutePath = resolve(this.context.cwd, input.path);
       if (this.shouldIgnore(absolutePath)) {
-        return { success: false, error: `File ignored by .byoaignore: ${absolutePath}` };
+        return { success: false, error: `File ignored by .caganignore: ${absolutePath}` };
       }
       if (!existsSync(absolutePath)) {
         return { success: false, error: `File not found: ${absolutePath}` };
@@ -130,7 +130,7 @@ export class ToolExecutor {
     try {
       const absolutePath = resolve(this.context.cwd, input.path);
       if (this.shouldIgnore(absolutePath)) {
-        return { success: false, error: `File ignored by .byoaignore: ${absolutePath}` };
+        return { success: false, error: `File ignored by .caganignore: ${absolutePath}` };
       }
       
       if (input.createBackup && existsSync(absolutePath)) {
@@ -155,7 +155,7 @@ export class ToolExecutor {
     try {
       const absolutePath = resolve(this.context.cwd, input.path);
       if (this.shouldIgnore(absolutePath)) {
-        return { success: false, error: `File ignored by .byoaignore: ${absolutePath}` };
+        return { success: false, error: `File ignored by .caganignore: ${absolutePath}` };
       }
       if (!existsSync(absolutePath)) {
         return { success: false, error: `File not found: ${absolutePath}` };
@@ -196,7 +196,7 @@ export class ToolExecutor {
     try {
       const searchPath = input.path || this.context.cwd;
       if (this.shouldIgnore(searchPath)) {
-        return { success: false, error: `Path ignored by .byoaignore: ${searchPath}` };
+        return { success: false, error: `Path ignored by .caganignore: ${searchPath}` };
       }
       const flags = input.caseSensitive ? '' : 'i';
       const includeFlag = input.include ? `--include=${input.include}` : '';
@@ -236,7 +236,7 @@ export class ToolExecutor {
     try {
       const absolutePath = resolve(this.context.cwd, input.path);
       if (this.shouldIgnore(absolutePath)) {
-        return { success: false, error: `Directory ignored by .byoaignore: ${absolutePath}` };
+        return { success: false, error: `Directory ignored by .caganignore: ${absolutePath}` };
       }
       if (!existsSync(absolutePath)) {
         return { success: false, error: `Directory not found: ${absolutePath}` };
@@ -309,7 +309,7 @@ export class ToolExecutor {
       if (!this.indexer) {
         this.indexer = new CodeIndexer(this.ignorePatterns);
         const cwd = this.context.workspaceRoot || this.context.cwd;
-        const ignorePath = join(cwd, '.byoaignore');
+        const ignorePath = join(cwd, '.caganignore');
         if (existsSync(ignorePath)) {
           const ignoreContent = readFileSync(ignorePath, 'utf-8');
           const patterns = ignoreContent.split('\n').filter(line => line.trim() && !line.startsWith('#'));

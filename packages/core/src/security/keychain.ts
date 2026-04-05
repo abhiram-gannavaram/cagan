@@ -2,8 +2,8 @@ import { homedir } from 'os';
 import { join as pathJoin } from 'path';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 
-const SERVICE_NAME = 'byoadev';
-const CREDENTIALS_DIR = pathJoin(homedir(), '.byoadev', 'credentials');
+const SERVICE_NAME = 'cagan';
+const CREDENTIALS_DIR = pathJoin(homedir(), '.cagan', 'credentials');
 
 interface CredentialsStore {
   [service: string]: {

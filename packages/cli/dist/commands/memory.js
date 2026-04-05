@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { getMemoryManager } from '@byoadev/core';
+import { getMemoryManager } from '@cagan/core';
 export async function memoryCommand(options) {
     const cwd = process.cwd();
     const scope = options.scope;
@@ -49,6 +49,6 @@ export async function memoryCommand(options) {
         return;
     }
     console.log(chalk.yellow('Please specify --list, --search, or --clear'));
-    console.log('Usage: byoadev memory --scope <scope> [--list | --search <query> | --clear]');
+    console.log('Usage: cagan memory --scope <scope> [--list | --search <query> | --clear]');
 }
 //# sourceMappingURL=memory.js.map
