@@ -67,7 +67,13 @@ export class SwarmCoordinator {
     let parsed: unknown[];
 
     try {
-      const obj = JSON.parse(raw);
+      // Strip <think>…</think> reasoning blocks emitted by models like MiniMax M2.7,
+      // DeepSeek-R1, QwQ etc. before attempting JSON parse.
+      const stripped = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+      // Extract the first JSON array or object from the response
+      const jsonMatch = stripped.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
+      const jsonStr = jsonMatch ? jsonMatch[0] : stripped;
+      const obj = JSON.parse(jsonStr);
       parsed = Array.isArray(obj) ? obj : (obj.tasks as unknown[] ?? []);
     } catch {
       throw new Error(`LLM returned invalid JSON during task decomposition: ${raw.slice(0, 200)}`);
