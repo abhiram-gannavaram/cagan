@@ -7,6 +7,8 @@ export * from './cost/index.js';
 export * from './streaming/index.js';
 export * from './mcp/index.js';
 export * from './config/index.js';
+export * from './detection/index.js';
+export * from './validation/index.js';
 
 import { createProvider } from './providers/index.js';
 import { createAgent } from './agents/index.js';

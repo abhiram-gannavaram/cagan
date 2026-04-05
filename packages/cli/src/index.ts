@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { existsSync } from 'fs';
+import { join } from 'path';
+import { homedir } from 'os';
 import { Command } from 'commander';
 import { initCommand } from './commands/init.js';
 import { agentCommand } from './commands/agent.js';
@@ -94,5 +97,20 @@ program
   .option('--provider <name>', 'Override provider')
   .option('--model <model>', 'Override model')
   .action(swarmCommand);
+
+// ── Auto-setup: if no config exists and user ran a non-meta command,
+//    run the setup wizard first ───────────────────────────────────────────
+const subcommand = process.argv[2];
+const skipSetupFor = ['init', '--help', '-h', '--version', '-V', undefined];
+
+if (!skipSetupFor.includes(subcommand)) {
+  const hasProjectConfig = existsSync(join(process.cwd(), '.cagan', 'config.yaml'));
+  const hasGlobalConfig  = existsSync(join(homedir(), '.cagan', 'config.yaml'));
+
+  if (!hasProjectConfig && !hasGlobalConfig) {
+    console.log('\n  No cagan config found. Running first-time setup…\n');
+    await initCommand(process.cwd());
+  }
+}
 
 program.parse();

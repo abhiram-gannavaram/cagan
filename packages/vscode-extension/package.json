@@ -1,65 +1,107 @@
 {
   "name": "@cagan/vscode-extension",
   "version": "0.1.0",
-  "displayName": "cagan",
-  "description": "Universal Open-Source AI Coding Agent",
+  "displayName": "cagan — AI Coding Agent",
+  "description": "Provider-agnostic AI coding agent. Works with Claude, GPT-4o, Gemini, Groq and more. Agent Swarm, TurboQuant token efficiency, persistent memory.",
   "publisher": "cagan",
+  "categories": ["AI", "Machine Learning", "Programming Languages", "Other"],
+  "keywords": ["ai", "coding", "agent", "claude", "openai", "gemini", "llm", "copilot", "swarm"],
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abhiram-gannavaram/cagan"
+  },
+  "bugs": {
+    "url": "https://github.com/abhiram-gannavaram/cagan/issues"
+  },
+  "license": "Apache-2.0",
   "type": "module",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
   "main": "./dist/extension.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "package": "vsce package --no-dependencies"
   },
   "activationEvents": [
-    "onCommand:cagan.init",
-    "onCommand:cagan.agent.run",
-    "onCommand:cagan.chat.focus",
-    "onView:cagan-sidebar"
+    "onStartupFinished"
   ],
   "contributes": {
     "commands": [
       {
+        "command": "cagan.setup",
+        "title": "cagan: Setup / Configure Provider",
+        "category": "cagan"
+      },
+      {
         "command": "cagan.init",
-        "title": "cagan: Initialize Project"
+        "title": "cagan: Initialize Project",
+        "category": "cagan"
       },
       {
         "command": "cagan.agent.run",
-        "title": "cagan: Run Agent"
+        "title": "cagan: Run Agent",
+        "category": "cagan"
       },
       {
         "command": "cagan.agent.stop",
-        "title": "cagan: Stop Agent"
+        "title": "cagan: Stop Agent",
+        "category": "cagan"
       },
       {
         "command": "cagan.agent.switchMode",
-        "title": "cagan: Switch Mode"
+        "title": "cagan: Switch Mode",
+        "category": "cagan"
       },
       {
         "command": "cagan.chat.focus",
-        "title": "cagan: Focus Chat"
+        "title": "cagan: Focus Chat",
+        "category": "cagan"
       },
       {
         "command": "cagan.memory.view",
-        "title": "cagan: View Memory"
+        "title": "cagan: View Memory",
+        "category": "cagan"
       },
       {
         "command": "cagan.config.edit",
-        "title": "cagan: Edit Config"
+        "title": "cagan: Edit Config",
+        "category": "cagan"
       },
       {
         "command": "cagan.cost.show",
-        "title": "cagan: Show Cost"
-      }
-    ],
-    "views": [
+        "title": "cagan: Show Cost",
+        "category": "cagan"
+      },
       {
-        "id": "cagan-sidebar",
-        "name": "cagan",
-        "type": "webview"
+        "command": "cagan.turbo.stats",
+        "title": "cagan: TurboQuant Stats",
+        "category": "cagan"
+      },
+      {
+        "command": "cagan.swarm.start",
+        "title": "cagan: Start Agent Swarm",
+        "category": "cagan"
+      },
+      {
+        "command": "cagan.swarm.status",
+        "title": "cagan: Swarm Status",
+        "category": "cagan"
       }
     ],
+    "views": {
+      "cagan-activitybar": [
+        {
+          "id": "cagan-sidebar",
+          "name": "cagan",
+          "type": "webview"
+        }
+      ]
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -71,25 +113,59 @@
     },
     "menus": {
       "commandPalette": [
+        { "command": "cagan.agent.run", "when": "workspaceFolderExists" },
+        { "command": "cagan.swarm.start", "when": "workspaceFolderExists" }
+      ],
+      "editor/context": [
         {
           "command": "cagan.agent.run",
-          "when": "workspaceFolderExists"
+          "when": "editorFocus",
+          "group": "cagan@1"
         }
       ]
+    },
+    "keybindings": [
+      {
+        "command": "cagan.chat.focus",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a",
+        "when": "editorFocus"
+      },
+      {
+        "command": "cagan.agent.run",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r",
+        "when": "editorFocus"
+      }
+    ],
+    "configuration": {
+      "title": "cagan",
+      "properties": {
+        "cagan.autoSetup": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show setup wizard on first install if no config is found"
+        },
+        "cagan.turboEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable TurboQuant token compression (reduces costs 40-60%)"
+        },
+        "cagan.budgetAlertUsd": {
+          "type": "number",
+          "default": 5.0,
+          "description": "Alert when session cost exceeds this amount (USD)"
+        }
+      }
     }
   },
   "dependencies": {
-    "@cagan/core": "workspace:*",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@cagan/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
     "@types/vscode": "^1.90.0",
-    "@vscode/webview-ui-toolkit": "^1.4.0",
-    "typescript": "^5.4.0",
-    "@vscode/test-electron": "^2.4.0"
+    "@vscode/vsce": "^2.24.0",
+    "typescript": "^5.4.0"
   }
 }

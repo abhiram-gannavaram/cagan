@@ -7,11 +7,25 @@
  */
 
 import * as vscode from 'vscode';
+import { existsSync } from 'fs';
+import { join } from 'path';
+import { homedir } from 'os';
 import { initCommand } from './commands/init.js';
 import { AgentPanel } from './panels/AgentPanel.js';
+import { SetupPanel } from './panels/SetupPanel.js';
 
 export function activate(context: vscode.ExtensionContext) {
   const agentPanel = new AgentPanel(context);
+
+  // ── First-time setup: show wizard if no config exists ──────────────────
+  const hasGlobalConfig  = existsSync(join(homedir(), '.cagan', 'config.yaml'));
+  const wsRoot           = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  const hasProjectConfig = wsRoot ? existsSync(join(wsRoot, '.cagan', 'config.yaml')) : false;
+
+  if (!hasGlobalConfig && !hasProjectConfig) {
+    // Small delay so VS Code fully loads before the panel opens
+    setTimeout(() => SetupPanel.show(context), 800);
+  }
 
   // ── TurboQuant status bar ──────────────────────────────────────────────
   // Shows current session cost and compression ratio in the status bar.
@@ -40,6 +54,10 @@ export function activate(context: vscode.ExtensionContext) {
       const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? process.cwd();
       await initCommand(cwd);
       vscode.window.showInformationMessage('cagan initialized successfully.');
+    }),
+
+    vscode.commands.registerCommand('cagan.setup', () => {
+      SetupPanel.show(context);
     }),
 
     vscode.commands.registerCommand('cagan.agent.run', async () => {
