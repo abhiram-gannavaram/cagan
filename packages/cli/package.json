@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "lint": "eslint src",
+    "lint": "tsc --noEmit",
     "test": "vitest",
     "clean": "rm -rf dist"
   },

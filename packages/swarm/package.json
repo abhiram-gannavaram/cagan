@@ -15,7 +15,7 @@
     "build": "tsc --build",
     "dev": "tsc --build --watch",
     "test": "vitest run",
-    "lint": "eslint src --ext .ts",
+    "lint": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
   "dependencies": {

@@ -10,7 +10,8 @@
 
 import { createHash } from 'node:crypto';
 import { readFile, writeFile, mkdir, readdir, unlink, stat } from 'node:fs/promises';
-import { join, homedir } from 'node:path';
+import { join } from 'node:path';
+import { homedir } from 'node:os';
 import type { Message } from '@cagan/core';
 
 export interface CacheMetadata {

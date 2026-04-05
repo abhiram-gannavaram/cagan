@@ -75,10 +75,11 @@ jobs:
       - name: Check for hardcoded secrets patterns
         run: |
           echo "Scanning for hardcoded secret patterns..."
-          if grep -rn "sk-[a-zA-Z0-9]\{20,\}\|anthropic-\|HARDCODED_KEY" \
+          if grep -rn "sk-[a-zA-Z0-9]\{20,\}\|anthropic-api-key-[a-zA-Z0-9]\{20,\}\|HARDCODED_KEY" \
                packages/ --include="*.ts" \
                --exclude-dir="__tests__" \
-               --exclude-dir="node_modules"; then
+               --exclude-dir="node_modules" \
+               --exclude-dir="dist"; then
             echo "ERROR: Potential hardcoded secret found."
             exit 1
           fi

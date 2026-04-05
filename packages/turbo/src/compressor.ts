@@ -156,9 +156,8 @@ export class PromptCompressor {
       const codeBlockPattern = /```[\s\S]*?```/g;
       let compressed = m.content;
 
-      const matches = Array.from(m.content.matchAll(codeBlockPattern));
-      for (const match of matches) {
-        const block = match[0];
+      const matches: string[] = m.content.match(codeBlockPattern) ?? [];
+      for (const block of matches) {
         const hash = simpleHash(block);
         if (seen.has(hash)) {
           // Replace duplicate block with a reference placeholder
