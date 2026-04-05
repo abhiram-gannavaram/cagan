@@ -4,6 +4,28 @@ import { homedir } from 'os';
 import { join } from 'path';
 import type { ProviderConfig } from '../providers/types.js';
 
+/** Load ~/.cagan/.env into process.env (non-destructive — won't overwrite existing vars). */
+function loadCaganDotEnv(): void {
+  const envPath = join(homedir(), '.cagan', '.env');
+  if (!existsSync(envPath)) return;
+  try {
+    const lines = readFileSync(envPath, 'utf-8').split('\n');
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line || line.startsWith('#')) continue;
+      const eq = line.indexOf('=');
+      if (eq < 0) continue;
+      const key = line.slice(0, eq).trim();
+      let val = line.slice(eq + 1).trim();
+      if ((val.startsWith('"') && val.endsWith('"')) ||
+          (val.startsWith("'") && val.endsWith("'"))) {
+        val = val.slice(1, -1);
+      }
+      if (!process.env[key]) process.env[key] = val;
+    }
+  } catch { /* ignore parse errors */ }
+}
+
 export interface AppConfig {
   version: string;
   providers: Record<string, ProviderConfig>;
@@ -49,10 +71,21 @@ export class ConfigManager {
   private configPath: string;
 
   constructor(projectPath?: string) {
-    const configDir = projectPath 
-      ? join(projectPath, '.cagan')
-      : join(homedir(), '.cagan');
-    this.configPath = join(configDir, 'config.yaml');
+    // Always load ~/.cagan/.env first so ${ENV_VAR} references resolve correctly
+    loadCaganDotEnv();
+
+    const globalConfig = join(homedir(), '.cagan', 'config.yaml');
+    const projectConfig = projectPath ? join(projectPath, '.cagan', 'config.yaml') : null;
+
+    // Prefer project-level config; fall back to global ~/.cagan/config.yaml
+    if (projectConfig && existsSync(projectConfig)) {
+      this.configPath = projectConfig;
+    } else if (existsSync(globalConfig)) {
+      this.configPath = globalConfig;
+    } else {
+      this.configPath = globalConfig; // will return DEFAULT_CONFIG on load
+    }
+
     this.config = this.loadConfig();
   }
 
@@ -141,15 +174,21 @@ export class ConfigManager {
     const apiKey = provider.apiKey;
     if (apiKey.startsWith('${') && apiKey.endsWith('}')) {
       const envVar = apiKey.slice(2, -1);
-      // Only allow safe env-var names: uppercase letters, digits, underscores.
-      // This prevents arbitrary env-var enumeration via config injection.
       if (!/^[A-Z_][A-Z0-9_]{0,99}$/.test(envVar)) {
         console.warn(`[cagan] Skipping unsafe env-var reference: "${envVar}"`);
         return '';
       }
+      // ~/.cagan/.env was already loaded into process.env in the constructor
       return process.env[envVar] || '';
     }
     return apiKey;
+  }
+
+  /** Returns a ProviderConfig with the API key already resolved (env var substituted). */
+  getResolvedProvider(name: string): ProviderConfig | undefined {
+    const p = this.config.providers[name];
+    if (!p) return undefined;
+    return { ...p, apiKey: this.resolveApiKey(name) };
   }
 
   reload(): void {

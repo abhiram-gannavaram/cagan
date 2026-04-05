@@ -26,7 +26,7 @@ export async function swarmCommand(task: string, options: SwarmOptions): Promise
   const config = configManager.getConfig();
 
   const providerName = options.provider ?? configManager.getDefaultProvider();
-  const providerConfig = configManager.getProvider(providerName);
+  const providerConfig = configManager.getResolvedProvider(providerName);
 
   if (!providerConfig) {
     console.error(`Provider "${providerName}" not configured. Run: cagan init`);

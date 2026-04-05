@@ -28,7 +28,7 @@ export async function agentCommand(task: string, options: AgentOptions): Promise
     process.exit(1);
   }
 
-  const providerConfig = configManager.getProvider(providerName);
+  const providerConfig = configManager.getResolvedProvider(providerName);
   if (!providerConfig) {
     console.log(chalk.red(`Provider ${providerName} not found in config`));
     process.exit(1);

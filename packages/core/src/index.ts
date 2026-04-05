@@ -40,7 +40,7 @@ export class CaganCore {
   }) {
     const configManager = getConfigManager(config.workspaceRoot);
     const providerName = config.providerName || configManager.getDefaultProvider();
-    const providerConfig = configManager.getProvider(providerName);
+    const providerConfig = configManager.getResolvedProvider(providerName);
 
     if (!providerConfig) {
       throw new Error(`Provider ${providerName} not found`);
