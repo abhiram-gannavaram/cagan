@@ -33,12 +33,14 @@ interface ProviderInfo {
 }
 
 const ALL_PROVIDERS: ProviderInfo[] = [
-  { kind: 'anthropic', name: 'Anthropic (Claude)', envVar: 'ANTHROPIC_API_KEY', defaultModel: 'claude-3-5-sonnet-20241022', models: ['claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229'], baseUrl: 'https://api.anthropic.com', apiKey: '' },
-  { kind: 'openai', name: 'OpenAI', envVar: 'OPENAI_API_KEY', defaultModel: 'gpt-4o', models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'o1-mini'], baseUrl: 'https://api.openai.com/v1', apiKey: '' },
-  { kind: 'gemini', name: 'Google Gemini', envVar: 'GEMINI_API_KEY', defaultModel: 'gemini-2.0-flash', models: ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'], baseUrl: 'https://generativelanguage.googleapis.com', apiKey: '' },
+  { kind: 'minimax', name: 'MiniMax', envVar: 'MINIMAX_API_KEY', defaultModel: 'MiniMax-M2.7', models: ['MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'abab6.5s-chat'], baseUrl: 'https://api.minimax.chat/v1', apiKey: '' },
+  { kind: 'anthropic', name: 'Anthropic (Claude)', envVar: 'ANTHROPIC_API_KEY', defaultModel: 'claude-sonnet-4-6', models: ['claude-opus-4-6', 'claude-sonnet-4-6', 'claude-haiku-4-5-20251001', 'claude-3-5-sonnet-20241022'], baseUrl: 'https://api.anthropic.com', apiKey: '' },
+  { kind: 'openai', name: 'OpenAI', envVar: 'OPENAI_API_KEY', defaultModel: 'gpt-4o', models: ['gpt-4o', 'gpt-4o-mini', 'o3', 'o3-mini', 'o1'], baseUrl: 'https://api.openai.com/v1', apiKey: '' },
+  { kind: 'gemini', name: 'Google Gemini', envVar: 'GEMINI_API_KEY', defaultModel: 'gemini-2.0-flash', models: ['gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-2.0-pro', 'gemini-1.5-pro'], baseUrl: 'https://generativelanguage.googleapis.com', apiKey: '' },
   { kind: 'deepseek', name: 'DeepSeek', envVar: 'DEEPSEEK_API_KEY', defaultModel: 'deepseek-chat', models: ['deepseek-chat', 'deepseek-reasoner'], baseUrl: 'https://api.deepseek.com/v1', apiKey: '' },
   { kind: 'mistral', name: 'Mistral', envVar: 'MISTRAL_API_KEY', defaultModel: 'mistral-large-latest', models: ['mistral-large-latest', 'codestral-latest', 'mistral-small-latest'], baseUrl: 'https://api.mistral.ai/v1', apiKey: '' },
-  { kind: 'groq', name: 'Groq (ultra-fast)', envVar: 'GROQ_API_KEY', defaultModel: 'llama-3.3-70b-versatile', models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'], baseUrl: 'https://api.groq.com/openai/v1', apiKey: '' }
+  { kind: 'groq', name: 'Groq (ultra-fast)', envVar: 'GROQ_API_KEY', defaultModel: 'llama-3.3-70b-versatile', models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'gemma2-9b-it'], baseUrl: 'https://api.groq.com/openai/v1', apiKey: '' },
+  { kind: 'custom', name: 'Custom (any OpenAI-compatible)', envVar: 'CUSTOM_API_KEY', defaultModel: '', models: [], baseUrl: '', apiKey: '' }
 ];
 
 export class SetupPanel {
@@ -101,9 +103,10 @@ export class SetupPanel {
         const envVar = msg.envVar as string;
         const model = msg.model as string;
         const apiKey = msg.apiKey as string;
+        const baseUrl = msg.baseUrl as string | undefined;
 
         try {
-          this.writeConfig(kind, envVar, model, apiKey);
+          this.writeConfig(kind, envVar, model, apiKey, baseUrl);
           this.panel.webview.postMessage({ command: 'saveResult', ok: true });
           // Auto-close after 2 seconds
           setTimeout(() => {
@@ -127,7 +130,7 @@ export class SetupPanel {
     }
   }
 
-  private writeConfig(kind: ProviderKind, envVar: string, model: string, apiKey: string): void {
+  private writeConfig(kind: ProviderKind, envVar: string, model: string, apiKey: string, customBaseUrl?: string): void {
     const caganHome = join(homedir(), '.cagan');
     mkdirSync(caganHome, { recursive: true });
 
@@ -148,7 +151,9 @@ export class SetupPanel {
       gemini: 'https://generativelanguage.googleapis.com',
       deepseek: 'https://api.deepseek.com/v1',
       mistral: 'https://api.mistral.ai/v1',
-      groq: 'https://api.groq.com/openai/v1'
+      groq: 'https://api.groq.com/openai/v1',
+      minimax: 'https://api.minimax.chat/v1',
+      custom: customBaseUrl ?? ''
     };
 
     const yaml = `version: "1.0"
@@ -378,6 +383,17 @@ function getWebviewHtml(_initialState: string): string {
       <div class="hint">This model will be used for all agent modes. You can change it in config later.</div>
     </div>
 
+    <div id="field-custom-url" class="field hidden">
+      <label for="inp-base-url">Base URL (OpenAI-compatible endpoint)</label>
+      <input type="text" id="inp-base-url" placeholder="https://api.minimax.chat/v1" autocomplete="off">
+      <div class="hint">The /v1 endpoint of your provider.</div>
+    </div>
+
+    <div id="field-custom-model" class="field hidden">
+      <label for="inp-model-name">Model name</label>
+      <input type="text" id="inp-model-name" placeholder="e.g. MiniMax-M2.7" autocomplete="off">
+    </div>
+
     <div id="field-key" class="field hidden">
       <label for="inp-key">API Key</label>
       <input type="password" id="inp-key" placeholder="Paste your API key here…" autocomplete="off" spellcheck="false">
@@ -529,7 +545,7 @@ function getWebviewHtml(_initialState: string): string {
       item.dataset.models = JSON.stringify(p.models);
       item.onclick = () => selectProvider(item);
 
-      const icons = { anthropic: '🟣', openai: '🟢', gemini: '🔵', deepseek: '🐳', mistral: '🌊', groq: '⚡' };
+      const icons = { minimax: '🔶', anthropic: '🟣', openai: '🟢', gemini: '🔵', deepseek: '🐳', mistral: '🌊', groq: '⚡', custom: '⚙️' };
       item.innerHTML = \`
         <div class="provider-icon">\${icons[p.kind] || '🤖'}</div>
         <div class="provider-info">
@@ -565,6 +581,17 @@ function getWebviewHtml(_initialState: string): string {
     const sel = document.getElementById('sel-model');
     sel.innerHTML = models.map(m => \`<option value="\${m}"\${m === defaultModel ? ' selected' : ''}>\${m}</option>\`).join('');
 
+    // Show/hide custom provider fields
+    if (kind === 'custom') {
+      hide('field-model');
+      show('field-custom-url');
+      show('field-custom-model');
+    } else {
+      show('field-model');
+      hide('field-custom-url');
+      hide('field-custom-model');
+    }
+
     // Show/hide key input
     if (!storedKey) {
       show('field-key');
@@ -577,7 +604,19 @@ function getWebviewHtml(_initialState: string): string {
 
   function nextFromChoose() {
     if (!selectedProvider) return;
-    selectedModel = document.getElementById('sel-model').value;
+
+    // Handle custom provider
+    if (selectedProvider.kind === 'custom') {
+      const baseUrl = document.getElementById('inp-base-url').value.trim();
+      const modelName = document.getElementById('inp-model-name').value.trim();
+      if (!baseUrl) { document.getElementById('inp-base-url').style.borderColor = 'var(--red)'; return; }
+      if (!modelName) { document.getElementById('inp-model-name').style.borderColor = 'var(--red)'; return; }
+      selectedProvider.baseUrl = baseUrl;
+      selectedModel = modelName;
+    } else {
+      selectedModel = document.getElementById('sel-model').value;
+    }
+
     const keyInput = document.getElementById('inp-key').value.trim();
 
     if (needsKeyInput && !keyInput) {
@@ -635,7 +674,8 @@ function getWebviewHtml(_initialState: string): string {
       kind: selectedProvider.kind,
       envVar: selectedProvider.envVar,
       model: selectedModel,
-      apiKey
+      apiKey,
+      baseUrl: selectedProvider.baseUrl || ''
     });
   }
 

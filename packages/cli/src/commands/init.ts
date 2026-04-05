@@ -16,28 +16,36 @@ const PROVIDER_CHOICES: Array<{
   models: string[];
 }> = [
   {
-    name: 'Anthropic  (Claude 3.5 Sonnet / Opus)',
+    name: 'MiniMax    (MiniMax-M2.7 / M2.7-highspeed)',
+    value: 'minimax',
+    envVar: 'MINIMAX_API_KEY',
+    baseUrl: 'https://api.minimax.chat/v1',
+    defaultModel: 'MiniMax-M2.7',
+    models: ['MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'abab6.5s-chat']
+  },
+  {
+    name: 'Anthropic  (Claude Sonnet 4.6 / Opus 4.6)',
     value: 'anthropic',
     envVar: 'ANTHROPIC_API_KEY',
     baseUrl: 'https://api.anthropic.com',
-    defaultModel: 'claude-3-5-sonnet-20241022',
-    models: ['claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229']
+    defaultModel: 'claude-sonnet-4-6',
+    models: ['claude-opus-4-6', 'claude-sonnet-4-6', 'claude-haiku-4-5-20251001', 'claude-3-5-sonnet-20241022']
   },
   {
-    name: 'OpenAI     (GPT-4o / o1)',
+    name: 'OpenAI     (GPT-4o / o3)',
     value: 'openai',
     envVar: 'OPENAI_API_KEY',
     baseUrl: 'https://api.openai.com/v1',
     defaultModel: 'gpt-4o',
-    models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'o1', 'o1-mini']
+    models: ['gpt-4o', 'gpt-4o-mini', 'o3', 'o3-mini', 'o1']
   },
   {
-    name: 'Google     (Gemini 2.0 Flash / 1.5 Pro)',
+    name: 'Google     (Gemini 2.5 Pro / 2.0 Flash)',
     value: 'gemini',
     envVar: 'GEMINI_API_KEY',
     baseUrl: 'https://generativelanguage.googleapis.com',
     defaultModel: 'gemini-2.0-flash',
-    models: ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash']
+    models: ['gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-2.0-pro', 'gemini-1.5-pro']
   },
   {
     name: 'DeepSeek   (deepseek-chat / reasoner)',
@@ -62,6 +70,22 @@ const PROVIDER_CHOICES: Array<{
     baseUrl: 'https://api.groq.com/openai/v1',
     defaultModel: 'llama-3.3-70b-versatile',
     models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768']
+  },
+  {
+    name: 'MiniMax    (MiniMax-M2.7 / M2.7-highspeed)',
+    value: 'minimax',
+    envVar: 'MINIMAX_API_KEY',
+    baseUrl: 'https://api.minimax.chat/v1',
+    defaultModel: 'MiniMax-M2.7',
+    models: ['MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'abab6.5s-chat']
+  },
+  {
+    name: 'Custom     (any OpenAI-compatible endpoint)',
+    value: 'custom',
+    envVar: 'CUSTOM_API_KEY',
+    baseUrl: '',
+    defaultModel: '',
+    models: []
   }
 ];
 
@@ -252,32 +276,67 @@ export async function initCommand(projectPath?: string): Promise<void> {
 
     const providerDef = PROVIDER_CHOICES.find(p => p.value === providerKind)!;
 
-    const { model } = await inquirer.prompt<{ model: string }>([
-      {
-        type: 'list',
-        name: 'model',
-        message: chalk.white('Select model:'),
-        choices: providerDef.models,
-        default: providerDef.defaultModel
-      }
-    ]);
+    // Custom provider: ask for base URL and model name
+    if (providerKind === 'custom') {
+      const { baseUrl } = await inquirer.prompt<{ baseUrl: string }>([
+        {
+          type: 'input',
+          name: 'baseUrl',
+          message: chalk.white('Base URL (OpenAI-compatible endpoint):'),
+          default: 'https://api.minimax.chat/v1',
+          validate: (v: string) => v.startsWith('http') ? true : 'Must be a valid URL starting with http'
+        }
+      ]);
+      const { model } = await inquirer.prompt<{ model: string }>([
+        {
+          type: 'input',
+          name: 'model',
+          message: chalk.white('Model name:'),
+          default: 'MiniMax-M2.7',
+          validate: (v: string) => v.trim().length > 0 ? true : 'Model name required'
+        }
+      ]);
+      const { apiKey } = await inquirer.prompt<{ apiKey: string }>([
+        {
+          type: 'password',
+          name: 'apiKey',
+          message: chalk.white('Paste your API key:'),
+          mask: '•',
+          validate: (v: string) => v.trim().length > 4 ? true : 'Key too short'
+        }
+      ]);
+      // Patch providerDef for config writing
+      providerDef.baseUrl = baseUrl.trim();
+      providerDef.defaultModel = model.trim();
+      chosen = { kind: 'custom', envVar: 'CUSTOM_API_KEY', model: model.trim(), apiKey: apiKey.trim() };
+    } else {
+      const { model } = await inquirer.prompt<{ model: string }>([
+        {
+          type: 'list',
+          name: 'model',
+          message: chalk.white('Select model:'),
+          choices: providerDef.models,
+          default: providerDef.defaultModel
+        }
+      ]);
 
-    const { apiKey } = await inquirer.prompt<{ apiKey: string }>([
-      {
-        type: 'password',
-        name: 'apiKey',
-        message: chalk.white(`Paste your ${providerDef.name.split(' ')[0]} API key:`),
-        mask: '•',
-        validate: (v: string) => v.trim().length > 10 ? true : 'Key looks too short — check and try again'
-      }
-    ]);
+      const { apiKey } = await inquirer.prompt<{ apiKey: string }>([
+        {
+          type: 'password',
+          name: 'apiKey',
+          message: chalk.white(`Paste your ${providerDef.name.split(' ')[0]} API key:`),
+          mask: '•',
+          validate: (v: string) => v.trim().length > 10 ? true : 'Key looks too short — check and try again'
+        }
+      ]);
 
-    chosen = {
-      kind: providerKind,
-      envVar: providerDef.envVar,
-      model,
-      apiKey: apiKey.trim()
-    };
+      chosen = {
+        kind: providerKind,
+        envVar: providerDef.envVar,
+        model,
+        apiKey: apiKey.trim()
+      };
+    }
   }
 
   // ── Step 3: test the key ───────────────────────────────────────────────

@@ -9,7 +9,9 @@ export type ProviderKind =
   | 'deepseek'
   | 'mistral'
   | 'groq'
-  | 'azure-openai';
+  | 'azure-openai'
+  | 'minimax'
+  | 'custom';
 
 export interface DetectedProvider {
   kind: ProviderKind;
@@ -39,29 +41,29 @@ const KNOWN_PROVIDERS: Array<{
     kind: 'anthropic',
     envVar: 'ANTHROPIC_API_KEY',
     name: 'Anthropic (Claude)',
-    defaultModel: 'claude-3-5-sonnet-20241022',
-    models: ['claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229']
+    defaultModel: 'claude-sonnet-4-6',
+    models: ['claude-opus-4-6', 'claude-sonnet-4-6', 'claude-haiku-4-5-20251001', 'claude-3-5-sonnet-20241022']
   },
   {
     kind: 'openai',
     envVar: 'OPENAI_API_KEY',
     name: 'OpenAI',
     defaultModel: 'gpt-4o',
-    models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'o1', 'o1-mini']
+    models: ['gpt-4o', 'gpt-4o-mini', 'o3', 'o3-mini', 'o1']
   },
   {
     kind: 'gemini',
     envVar: 'GEMINI_API_KEY',
     name: 'Google Gemini',
     defaultModel: 'gemini-2.0-flash',
-    models: ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash']
+    models: ['gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-2.0-pro', 'gemini-1.5-pro']
   },
   {
     kind: 'gemini',
     envVar: 'GOOGLE_API_KEY',
     name: 'Google Gemini',
     defaultModel: 'gemini-2.0-flash',
-    models: ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash']
+    models: ['gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-2.0-pro', 'gemini-1.5-pro']
   },
   {
     kind: 'deepseek',
@@ -90,6 +92,13 @@ const KNOWN_PROVIDERS: Array<{
     name: 'Azure OpenAI',
     defaultModel: 'gpt-4o',
     models: ['gpt-4o', 'gpt-4-turbo', 'gpt-35-turbo']
+  },
+  {
+    kind: 'minimax',
+    envVar: 'MINIMAX_API_KEY',
+    name: 'MiniMax',
+    defaultModel: 'MiniMax-M2.7',
+    models: ['MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'abab6.5s-chat']
   }
 ];
 

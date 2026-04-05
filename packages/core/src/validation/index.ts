@@ -11,7 +11,8 @@ const OPENAI_COMPAT_BASES: Partial<Record<ProviderKind, string>> = {
   openai: 'https://api.openai.com/v1',
   deepseek: 'https://api.deepseek.com/v1',
   mistral: 'https://api.mistral.ai/v1',
-  groq: 'https://api.groq.com/openai/v1'
+  groq: 'https://api.groq.com/openai/v1',
+  minimax: 'https://api.minimax.chat/v1'
 };
 
 const DEFAULT_TEST_MODELS: Partial<Record<ProviderKind, string>> = {
@@ -21,7 +22,8 @@ const DEFAULT_TEST_MODELS: Partial<Record<ProviderKind, string>> = {
   deepseek: 'deepseek-chat',
   mistral: 'mistral-small-latest',
   groq: 'llama-3.1-8b-instant',
-  'azure-openai': 'gpt-4o'
+  'azure-openai': 'gpt-4o',
+  minimax: 'MiniMax-M2.7'
 };
 
 export async function validateApiKey(

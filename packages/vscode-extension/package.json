@@ -6,7 +6,7 @@
   "publisher": "cagan",
   "categories": ["AI", "Machine Learning", "Programming Languages", "Other"],
   "keywords": ["ai", "coding", "agent", "claude", "openai", "gemini", "llm", "copilot", "swarm"],
-  "icon": "media/icon.png",
+  "icon": "media/icon.svg",
   "repository": {
     "type": "git",
     "url": "https://github.com/abhiram-gannavaram/cagan"
