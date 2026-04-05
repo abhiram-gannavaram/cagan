@@ -38,10 +38,10 @@ export async function swarmCommand(task: string, options: SwarmOptions): Promise
   const model = options.model ?? providerConfig.models.default;
 
   const swarmConfig: SwarmConfig = {
-    maxParallelAgents: options.maxAgents ? parseInt(options.maxAgents, 10) : (config.swarm?.max_parallel_agents ?? 5),
-    conflictResolution: options.conflicts ?? (config.swarm?.conflict_resolution ?? 'merge'),
-    continueOnFailure: options.continueOnFailure ?? (config.swarm?.continue_on_failure ?? false),
-    tokenBudget: options.budget ? parseInt(options.budget, 10) : config.swarm?.default_token_budget,
+    maxParallelAgents: options.maxAgents ? parseInt(options.maxAgents, 10) : (config.defaults.max_parallel_agents ?? 5),
+    conflictResolution: options.conflicts ?? 'merge',
+    continueOnFailure: options.continueOnFailure ?? false,
+    tokenBudget: options.budget ? parseInt(options.budget, 10) : undefined,
     dryRun: options.dryRun ?? false,
     provider: providerName,
     model,
