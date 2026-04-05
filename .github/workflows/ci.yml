@@ -36,7 +36,8 @@ jobs:
         run: pnpm -r test
 
       - name: Dependency vulnerability audit
-        run: pnpm audit --audit-level=high || echo "WARNING: audit found issues (non-blocking on CI)"
+        run: |
+          pnpm audit --audit-level=high || echo "WARNING: audit found issues (non-blocking on CI)"
 
   security-audit:
     name: Security Audit — No Telemetry
